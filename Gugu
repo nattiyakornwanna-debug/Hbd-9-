@@ -1,0 +1,349 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Happy Birthday 💚</title>
+<style>
+  :root{
+    --bg:#0d1f14;        /* เขียวเข้มอมดำ */
+    --ink:#ffffff;       /* ตัวอักษรสีขาว */
+    --ink-dim:#cfe7d2;   /* ตัวอักษรจาง */
+    --accent:#4ade80;    /* เขียวสด */
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Thai", "Noto Sans", Arial, sans-serif;
+    background:
+      radial-gradient(1200px 800px at 80% -10%, #193d2a 0%, transparent 60%),
+      radial-gradient(1000px 700px at -20% 110%, #123322 0%, transparent 60%),
+      var(--bg);
+    color:var(--ink);
+    overflow:hidden;
+  }
+  .app{
+    position:relative;
+    height:100%;
+    width:100%;
+  }
+  .page{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; gap:1.25rem;
+    align-items:center; justify-content:center;
+    padding:clamp(16px, 3vw, 32px);
+    text-align:center;
+    opacity:0; transform:translateY(12px) scale(0.99);
+    transition:opacity .5s ease, transform .6s cubic-bezier(.2,.7,.2,1);
+    pointer-events:none;
+  }
+  .page.active{
+    opacity:1; transform:translateY(0) scale(1);
+    pointer-events:auto;
+  }
+  h1{
+    font-size:clamp(28px, 4.8vw, 56px);
+    line-height:1.1; margin:0;
+    letter-spacing:.02em;
+  }
+  p.lead{
+    font-size:clamp(16px, 3.2vw, 22px);
+    color:var(--ink-dim); margin:.25rem 0 0 0;
+  }
+  .hint{
+    position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
+    font-size:14px; color:#b9e2c5; opacity:.9;
+    user-select:none;
+    display:flex; align-items:center; gap:.5rem;
+  }
+  .chip{
+    font-size:12px; padding:.25rem .5rem; border:1px solid #264d35; border-radius:999px; color:#a5dcb0;
+    background:rgba(255,255,255,.03);
+  }
+  .tap-area{
+    position:absolute; inset:0; cursor:pointer;
+  }
+  .fade-letters span{
+    display:inline-block; opacity:1;
+    transition:opacity 1.2s ease;
+  }
+  .fade-letters.start span{ opacity:0; }
+  .fade-letters span{ transition-delay: calc(var(--i, 0) * 80ms); }
+
+  .btn{
+    border:1px solid #295c3e; background:rgba(255,255,255,.05); color:var(--ink);
+    padding:.6rem 1rem; border-radius:12px; font-size:14px;
+    backdrop-filter:saturate(140%) blur(6px);
+  }
+  .progress{
+    position:fixed; top:16px; left:50%; transform:translateX(-50%);
+    display:flex; gap:8px;
+  }
+  .dot{
+    height:8px; width:8px; border-radius:999px; background:#2f4d3a; opacity:.5; transition:all .3s ease;
+  }
+  .dot.active{ background:var(--accent); opacity:1; box-shadow:0 0 0 4px rgba(74,222,128,.15)}
+  canvas#confetti{ position:fixed; inset:0; pointer-events:none }
+</style>
+</head>
+<body>
+  <div class="app" id="app">
+    <div class="progress" id="progress"></div>
+    <canvas id="confetti"></canvas>
+
+    <!-- Page 1 -->
+    <section class="page active" data-index="0">
+      <h1 class="fade-letters" id="fadeText">วันนี้วันอะไรน้า…</h1>
+      <p class="lead">ลองแตะหน้าจอเพื่อไปหน้าถัดไปดูสิ</p>
+      <button class="btn" id="nextBtn1" aria-label="ถัดไป">ถัดไป</button>
+      <div class="tap-area" data-role="next"></div>
+    </section>
+
+    <!-- Page 2 -->
+    <section class="page" data-index="1">
+      <h1>วันเกิดเธอรีป่าวว</h1>
+      <p class="lead">มีอะไรแอบซ่อนอยู่ต่อจากนี้นะ 😉</p>
+      <button class="btn" aria-label="ถัดไป">ถัดไป</button>
+      <div class="tap-area" data-role="next"></div>
+    </section>
+
+    <!-- Page 3 -->
+    <section class="page" data-index="2">
+      <h1>ไหนๆ ก็ไหนๆ แล้ว …</h1>
+      <p class="lead">งั้นไปต่ออีกนิดนึงละกัน</p>
+      <button class="btn" aria-label="ถัดไป">ถัดไป</button>
+      <div class="tap-area" data-role="next"></div>
+    </section>
+
+    <!-- Page 4 -->
+    <section class="page" data-index="3">
+      <h1>มองมาข้างหลังสิ</h1>
+      <p class="lead">แอบมีอะไรเตรียมไว้ให้อยู่ข้างหลังนะ</p>
+      <button class="btn" aria-label="ถัดไป">ถัดไป</button>
+      <div class="tap-area" data-role="next"></div>
+    </section>
+
+    <!-- Page 5 -->
+    <section class="page" data-index="4">
+      <h1>สุขสันต์วันเกิดน้า 🎂</h1>
+      <p class="lead">ขอให้มีความสุขมากๆ สมหวังในสิ่งที่ตั้งใจนะ 💚</p>
+      <button class="btn" id="replaySong" aria-label="เล่นเพลงอีกครั้ง">เล่นเพลงอีกครั้ง</button>
+      <div class="tap-area" data-role="next"></div>
+    </section>
+
+    <div class="hint">
+      <span class="chip">แตะที่ไหนก็ได้เพื่อไปหน้าถัดไป</span>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const pages = [...document.querySelectorAll('.page')];
+  let idx = 0;
+
+  // Progress dots
+  const prog = document.getElementById('progress');
+  pages.forEach((_,i)=>{
+    const d=document.createElement('div');
+    d.className='dot'+(i===0?' active':'');
+    prog.appendChild(d);
+  });
+  const setDots = (i)=>{
+    [...prog.children].forEach((el,k)=>el.classList.toggle('active',k===i));
+  };
+
+  function show(i){
+    pages[idx].classList.remove('active');
+    idx = Math.max(0, Math.min(pages.length-1, i));
+    pages[idx].classList.add('active');
+    setDots(idx);
+    if(idx===4){ startCelebration(); }
+  }
+  function next(){ show(idx+1); }
+  function prev(){ show(idx-1); }
+
+  // Tap / click anywhere on a page
+  document.querySelectorAll('[data-role="next"], .btn').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      resumeAudio(); // ensure AudioContext unlocked
+      next();
+    });
+  });
+
+  // Keyboard support
+  window.addEventListener('keydown', (e)=>{
+    if(e.key==='ArrowRight' || e.key===' '){ resumeAudio(); next(); }
+    if(e.key==='ArrowLeft'){ prev(); }
+  });
+
+  // หน้าแรก: ทำตัวอักษรค่อยๆ จางทีละตัว
+  const fadeEl = document.getElementById('fadeText');
+  const txt = fadeEl.textContent;
+  fadeEl.textContent='';
+  [...txt].forEach((ch,i)=>{
+    const s=document.createElement('span');
+    s.style.setProperty('--i', i);
+    s.textContent = ch;
+    fadeEl.appendChild(s);
+  });
+  setTimeout(()=>fadeEl.classList.add('start'), 1200);
+
+  // ===== Happy Birthday via WebAudio =====
+  let audioCtx;
+  let playing = false;
+
+  function resumeAudio(){
+    if(!audioCtx){
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if(audioCtx.state === 'suspended'){
+      audioCtx.resume();
+    }
+  }
+
+  // Frequencies helper
+  const A4=440;
+  function freq(note){
+    if(note==='R') return 0;
+    const map = {'C':-9,'C#':-8,'Db':-8,'D':-7,'D#':-6,'Eb':-6,'E':-5,'F':-4,'F#':-3,'Gb':-3,'G':-2,'G#':-1,'Ab':-1,'A':0,'A#':1,'Bb':1,'B':2};
+    const m = note.match(/^([A-G][b#]?)(\d)$/);
+    if(!m) return 0;
+    const [,p,oct]=m;
+    const semis = map[p] + (oct-4)*12;
+    return A4 * Math.pow(2, semis/12);
+  }
+
+  const bpm = 120;
+  const beat = 60 / bpm;
+  const song = [
+    ['G4',1],['G4',1],['A4',2],['G4',2],['C5',2],['B4',4],
+    ['G4',1],['G4',1],['A4',2],['G4',2],['D5',2],['C5',4],
+    ['G4',1],['G4',1],['G5',2],['E5',2],['C5',2],['B4',2],['A4',2],
+    ['F5',1],['F5',1],['E5',2],['C5',2],['D5',2],['C5',4]
+  ];
+
+  function playSong(){
+    if(!audioCtx) resumeAudio();
+    const now = audioCtx.currentTime + 0.05;
+    let t = now;
+    playing = true;
+
+    song.forEach(([n,beats],i)=>{
+      const dur = beats * beat;
+      const f = freq(n);
+      if(f>0){
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = 'sine';
+        o.frequency.value = f;
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(0.22, t+0.03);
+        g.gain.exponentialRampToValueAtTime(0.001, t+dur-0.03);
+
+        o.connect(g).connect(audioCtx.destination);
+        o.start(t);
+        o.stop(t+dur);
+      }
+      t += dur;
+    });
+
+    setTimeout(()=>{ playing=false; }, (t - now + 0.2)*1000);
+  }
+
+  document.getElementById('replaySong').addEventListener('click', (e)=>{
+    e.stopPropagation();
+    resumeAudio();
+    playSong();
+    burstConfetti(350);
+  });
+
+  function startCelebration(){
+    if(!playing){
+      playSong();
+      burstConfetti(500);
+    }
+  }
+
+  // ===== Confetti =====
+  const canvas = document.getElementById('confetti');
+  const ctx = canvas.getContext('2d');
+  let W=0,H=0, particles=[], confettiTimer=null, rafId=null;
+
+  function resize(){
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    W = canvas.width = Math.floor(innerWidth * dpr);
+    H = canvas.height = Math.floor(innerHeight * dpr);
+    canvas.style.width = innerWidth+'px';
+    canvas.style.height = innerHeight+'px';
+    ctx.setTransform(1,0,0,1,0,0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function makeParticle(){
+    return {
+      x: Math.random()*W,
+      y: -20,
+      vx: (Math.random()-0.5)*2,
+      vy: Math.random()*3+2,
+      size: Math.random()*6+4,
+      rot: Math.random()*Math.PI*2,
+      vr: (Math.random()-0.5)*0.2,
+      hue: Math.floor(Math.random()*120+80) // โทนเขียว-เหลือง
+    }
+  }
+
+  function addParticles(n=100){
+    for(let i=0;i<n;i++) particles.push(makeParticle());
+    if(!rafId) loop();
+  }
+
+  function loop(){
+    rafId = requestAnimationFrame(loop);
+    ctx.clearRect(0,0,W,H);
+    particles.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr;
+    });
+    particles = particles.filter(p=>p.y < H+40);
+    particles.forEach(p=>{
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = `hsl(${p.hue} 80% 60%)`;
+      ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
+      ctx.restore();
+    });
+    if(particles.length===0){ cancelAnimationFrame(rafId); rafId=null; }
+  }
+
+  function burstConfetti(n=300){
+    addParticles(n);
+    clearTimeout(confettiTimer);
+    confettiTimer=setTimeout(()=>particles=[], 5000);
+  }
+
+  // Swipe mobile
+  let touchX=null;
+  window.addEventListener('touchstart', e=>{ touchX = e.touches[0].clientX; }, {passive:true});
+  window.addEventListener('touchend', e=>{
+    if(touchX==null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    if(Math.abs(dx) > 40){
+      resumeAudio();
+      if(dx<0) next(); else prev();
+    }
+    touchX=null;
+  });
+
+  document.getElementById('nextBtn1').addEventListener('click', e=>{ e.stopPropagation(); resumeAudio(); next(); });
+
+})();
+</script>
+</body>
+</html>
+
+
+⸻
+
+อยากให้ฉันใส่ ชื่อคนที่รับคำอวยพร ลงไปด้วยตรงหน้า 5 ไหมคะ? 🎂💚
